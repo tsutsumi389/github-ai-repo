@@ -34,6 +34,9 @@ describe("fetchRepositories", () => {
   beforeEach(() => {
     vi.stubGlobal("fetch", fetchMock);
     delete process.env.GITHUB_TOKEN;
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(sampleResponse), { status: 200 }),
+    );
   });
 
   afterEach(() => {
@@ -42,10 +45,6 @@ describe("fetchRepositories", () => {
   });
 
   it("GitHub APIの /repositories エンドポイントを叩く", async () => {
-    fetchMock.mockResolvedValue(
-      new Response(JSON.stringify(sampleResponse), { status: 200 }),
-    );
-
     await fetchRepositories();
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -54,10 +53,6 @@ describe("fetchRepositories", () => {
   });
 
   it("Accept ヘッダーに GitHub v3 JSON を指定する", async () => {
-    fetchMock.mockResolvedValue(
-      new Response(JSON.stringify(sampleResponse), { status: 200 }),
-    );
-
     await fetchRepositories();
 
     const [, init] = fetchMock.mock.calls[0];
@@ -66,10 +61,6 @@ describe("fetchRepositories", () => {
   });
 
   it("GITHUB_TOKEN が未設定のときは Authorization ヘッダーを付けない", async () => {
-    fetchMock.mockResolvedValue(
-      new Response(JSON.stringify(sampleResponse), { status: 200 }),
-    );
-
     await fetchRepositories();
 
     const [, init] = fetchMock.mock.calls[0];
@@ -79,9 +70,6 @@ describe("fetchRepositories", () => {
 
   it("GITHUB_TOKEN が設定されていれば Authorization ヘッダーを付与する", async () => {
     process.env.GITHUB_TOKEN = "ghp_test_token";
-    fetchMock.mockResolvedValue(
-      new Response(JSON.stringify(sampleResponse), { status: 200 }),
-    );
 
     await fetchRepositories();
 
@@ -91,10 +79,6 @@ describe("fetchRepositories", () => {
   });
 
   it("レスポンスを Repository[] として返す", async () => {
-    fetchMock.mockResolvedValue(
-      new Response(JSON.stringify(sampleResponse), { status: 200 }),
-    );
-
     const repos = await fetchRepositories();
 
     expect(repos).toHaveLength(2);

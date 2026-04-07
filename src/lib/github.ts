@@ -3,14 +3,11 @@ import type { Repository } from "@/types/github";
 const GITHUB_REPOSITORIES_URL = "https://api.github.com/repositories";
 
 export async function fetchRepositories(): Promise<readonly Repository[]> {
-  const headers: Record<string, string> = {
-    Accept: "application/vnd.github.v3+json",
-  };
-
   const token = process.env.GITHUB_TOKEN;
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
+  const headers = {
+    Accept: "application/vnd.github.v3+json",
+    ...(token && { Authorization: `Bearer ${token}` }),
+  };
 
   const response = await fetch(GITHUB_REPOSITORIES_URL, { headers });
 
