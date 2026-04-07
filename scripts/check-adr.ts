@@ -52,15 +52,18 @@ for (const file of files) {
     }
   }
 
-  if (fm.status && !VALID_STATUSES.includes(fm.status as (typeof VALID_STATUSES)[number])) {
+  if (
+    fm.status &&
+    !VALID_STATUSES.includes(fm.status as (typeof VALID_STATUSES)[number])
+  ) {
     errors.push(
-      `${file}: 無効なステータス '${fm.status}' (有効値: ${VALID_STATUSES.join(", ")})`
+      `${file}: 無効なステータス '${fm.status}' (有効値: ${VALID_STATUSES.join(", ")})`,
     );
   }
 
   if (fm.status === "Superseded" && !fm.superseded_by) {
     errors.push(
-      `${file}: ステータスが Superseded ですが 'superseded_by' が指定されていません`
+      `${file}: ステータスが Superseded ですが 'superseded_by' が指定されていません`,
     );
   }
 
