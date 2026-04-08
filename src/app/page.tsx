@@ -6,9 +6,9 @@ export default async function Home() {
   const repositories = await fetchRepositories();
 
   return (
-    <main>
+    <>
       <Header />
-      <section className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8">
         {repositories.length === 0 ? (
           <p className="text-muted-foreground">
             リポジトリが見つかりませんでした
@@ -20,7 +20,7 @@ export default async function Home() {
             ))}
           </div>
         )}
-      </section>
-    </main>
+      </main>
+    </>
   );
 }

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import type { Repository } from "@/types/github";
 
 type RepositoryCardProps = {
@@ -15,7 +15,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
       className="block"
     >
       <Card className="transition-shadow hover:shadow-md">
-        <CardHeader className="flex-row items-center gap-3 space-y-0">
+        <div className="flex items-center gap-3 px-4">
           <Image
             src={repository.owner.avatar_url}
             alt={`${repository.owner.login} avatar`}
@@ -23,10 +23,8 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
             height={40}
             className="rounded-full"
           />
-          <CardTitle className="truncate text-base">
-            {repository.full_name}
-          </CardTitle>
-        </CardHeader>
+          <span className="truncate font-medium">{repository.full_name}</span>
+        </div>
       </Card>
     </a>
   );
