@@ -9,7 +9,10 @@ export async function fetchRepositories(): Promise<readonly Repository[]> {
     ...(token && { Authorization: `Bearer ${token}` }),
   };
 
-  const response = await fetch(GITHUB_REPOSITORIES_URL, { headers });
+  const response = await fetch(GITHUB_REPOSITORIES_URL, {
+    headers,
+    next: { revalidate: 300 },
+  });
 
   if (!response.ok) {
     throw new Error(
