@@ -100,8 +100,9 @@ describe("fetchRepositories", () => {
   it("HTTP エラー時は GitHubHttpError を投げる", async () => {
     fetchMock.mockResolvedValue(new Response("rate limited", { status: 403 }));
 
-    await expect(fetchRepositories()).rejects.toBeInstanceOf(GitHubHttpError);
-    await expect(fetchRepositories()).rejects.toHaveProperty("status", 403);
+    const error = await fetchRepositories().catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(GitHubHttpError);
+    expect((error as GitHubHttpError).status).toBe(403);
   });
 
   it("fetch 自体が失敗したら例外を伝播する", async () => {
@@ -222,22 +223,20 @@ describe("fetchRepositoryDetail", () => {
   it("404 のときは status=404 の GitHubHttpError を投げる", async () => {
     fetchMock.mockResolvedValue(new Response("not found", { status: 404 }));
 
-    await expect(
-      fetchRepositoryDetail("octocat", "Hello-World"),
-    ).rejects.toBeInstanceOf(GitHubHttpError);
-    await expect(
-      fetchRepositoryDetail("octocat", "Hello-World"),
-    ).rejects.toHaveProperty("status", 404);
+    const error = await fetchRepositoryDetail("octocat", "Hello-World").catch(
+      (e: unknown) => e,
+    );
+    expect(error).toBeInstanceOf(GitHubHttpError);
+    expect((error as GitHubHttpError).status).toBe(404);
   });
 
   it("5xx のときは status を保持した GitHubHttpError を投げる", async () => {
     fetchMock.mockResolvedValue(new Response("boom", { status: 503 }));
 
-    await expect(
-      fetchRepositoryDetail("octocat", "Hello-World"),
-    ).rejects.toBeInstanceOf(GitHubHttpError);
-    await expect(
-      fetchRepositoryDetail("octocat", "Hello-World"),
-    ).rejects.toHaveProperty("status", 503);
+    const error = await fetchRepositoryDetail("octocat", "Hello-World").catch(
+      (e: unknown) => e,
+    );
+    expect(error).toBeInstanceOf(GitHubHttpError);
+    expect((error as GitHubHttpError).status).toBe(503);
   });
 });
