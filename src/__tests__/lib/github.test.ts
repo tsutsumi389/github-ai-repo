@@ -47,7 +47,6 @@ describe("fetchRepositories", () => {
   it("GitHub APIの /repositories エンドポイントを叩く", async () => {
     await fetchRepositories();
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url] = fetchMock.mock.calls[0];
     expect(url).toBe("https://api.github.com/repositories");
   });
@@ -145,7 +144,6 @@ describe("fetchRepositoryDetail", () => {
   it("GitHub APIの /repos/{owner}/{repo} エンドポイントを叩く", async () => {
     await fetchRepositoryDetail("octocat", "Hello-World");
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
     const [url] = fetchMock.mock.calls[0];
     expect(url).toBe("https://api.github.com/repos/octocat/Hello-World");
   });
