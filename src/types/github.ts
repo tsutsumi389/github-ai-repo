@@ -8,3 +8,11 @@ export type Repository = {
     readonly avatar_url: string;
   };
 };
+
+export type RepositoryDetail = Repository & {
+  readonly language: string | null;
+  readonly stargazers_count: number;
+  readonly watchers_count: number;
+  readonly forks_count: number;
+  readonly open_issues_count: number;
+};
