@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import type { Repository } from "@/types/github";
 
@@ -8,10 +9,8 @@ type RepositoryCardProps = {
 
 export function RepositoryCard({ repository }: RepositoryCardProps) {
   return (
-    <a
-      href={repository.html_url}
-      target="_blank"
-      rel="noopener noreferrer"
+    <Link
+      href={`/repositories/${repository.owner.login}/${repository.name}`}
       className="block"
     >
       <Card className="transition-shadow hover:shadow-md">
@@ -26,6 +25,6 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
           <span className="truncate font-medium">{repository.full_name}</span>
         </div>
       </Card>
-    </a>
+    </Link>
   );
 }
