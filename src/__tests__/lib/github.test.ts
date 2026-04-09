@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fetchRepositories, fetchRepositoryDetail } from "@/lib/github";
+import {
+  fetchRepositories,
+  fetchRepositoryDetail,
+  GitHubHttpError,
+} from "@/lib/github";
 
 const sampleResponse = [
   {
@@ -93,10 +97,11 @@ describe("fetchRepositories", () => {
     });
   });
 
-  it("HTTP エラー時は例外を投げる", async () => {
+  it("HTTP エラー時は GitHubHttpError を投げる", async () => {
     fetchMock.mockResolvedValue(new Response("rate limited", { status: 403 }));
 
-    await expect(fetchRepositories()).rejects.toThrow(/403/);
+    await expect(fetchRepositories()).rejects.toBeInstanceOf(GitHubHttpError);
+    await expect(fetchRepositories()).rejects.toHaveProperty("status", 403);
   });
 
   it("fetch 自体が失敗したら例外を伝播する", async () => {
@@ -219,10 +224,10 @@ describe("fetchRepositoryDetail", () => {
 
     await expect(
       fetchRepositoryDetail("octocat", "Hello-World"),
-    ).rejects.toMatchObject({
-      name: "GitHubHttpError",
-      status: 404,
-    });
+    ).rejects.toBeInstanceOf(GitHubHttpError);
+    await expect(
+      fetchRepositoryDetail("octocat", "Hello-World"),
+    ).rejects.toHaveProperty("status", 404);
   });
 
   it("5xx のときは status を保持した GitHubHttpError を投げる", async () => {
@@ -230,9 +235,9 @@ describe("fetchRepositoryDetail", () => {
 
     await expect(
       fetchRepositoryDetail("octocat", "Hello-World"),
-    ).rejects.toMatchObject({
-      name: "GitHubHttpError",
-      status: 503,
-    });
+    ).rejects.toBeInstanceOf(GitHubHttpError);
+    await expect(
+      fetchRepositoryDetail("octocat", "Hello-World"),
+    ).rejects.toHaveProperty("status", 503);
   });
 });
