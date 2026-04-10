@@ -9,6 +9,11 @@ export type Repository = {
   };
 };
 
+export type SearchRepositoriesResponse = {
+  readonly total_count: number;
+  readonly items: readonly Repository[];
+};
+
 export type RepositoryDetail = Repository & {
   readonly language: string | null;
   readonly stargazers_count: number;

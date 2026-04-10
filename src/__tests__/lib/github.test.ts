@@ -3,6 +3,7 @@ import {
   fetchRepositories,
   fetchRepositoryDetail,
   GitHubHttpError,
+  searchRepositories,
 } from "@/lib/github";
 
 const sampleResponse = [
@@ -238,5 +239,109 @@ describe("fetchRepositoryDetail", () => {
     );
     expect(error).toBeInstanceOf(GitHubHttpError);
     expect((error as GitHubHttpError).status).toBe(503);
+  });
+});
+
+const sampleSearchResponse = {
+  total_count: 2,
+  items: [
+    {
+      id: 10,
+      name: "react",
+      full_name: "facebook/react",
+      html_url: "https://github.com/facebook/react",
+      owner: {
+        login: "facebook",
+        avatar_url: "https://avatars.githubusercontent.com/u/69631?v=4",
+      },
+      description: "A declarative, efficient, and flexible JavaScript library",
+      private: false,
+    },
+    {
+      id: 20,
+      name: "react-native",
+      full_name: "facebook/react-native",
+      html_url: "https://github.com/facebook/react-native",
+      owner: {
+        login: "facebook",
+        avatar_url: "https://avatars.githubusercontent.com/u/69631?v=4",
+      },
+    },
+  ],
+};
+
+describe("searchRepositories", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    vi.stubGlobal("fetch", fetchMock);
+    delete process.env.GITHUB_TOKEN;
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(sampleSearchResponse), { status: 200 }),
+    );
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    fetchMock.mockReset();
+  });
+
+  it("GitHub Search API の /search/repositories エンドポイントを叩く", async () => {
+    await searchRepositories("react");
+
+    const [url] = fetchMock.mock.calls[0];
+    expect(url).toBe("https://api.github.com/search/repositories?q=react");
+  });
+
+  it("クエリ文字列を URL エンコードする", async () => {
+    await searchRepositories("hello world");
+
+    const [url] = fetchMock.mock.calls[0];
+    expect(url).toBe(
+      "https://api.github.com/search/repositories?q=hello%20world",
+    );
+  });
+
+  it("items を Repository[] にマッピングする", async () => {
+    const repos = await searchRepositories("react");
+
+    expect(repos).toHaveLength(2);
+    expect(repos[0]).toEqual({
+      id: 10,
+      name: "react",
+      full_name: "facebook/react",
+      html_url: "https://github.com/facebook/react",
+      owner: {
+        login: "facebook",
+        avatar_url: "https://avatars.githubusercontent.com/u/69631?v=4",
+      },
+    });
+    expect(repos[1]).toEqual({
+      id: 20,
+      name: "react-native",
+      full_name: "facebook/react-native",
+      html_url: "https://github.com/facebook/react-native",
+      owner: {
+        login: "facebook",
+        avatar_url: "https://avatars.githubusercontent.com/u/69631?v=4",
+      },
+    });
+  });
+
+  it("空文字クエリは API を呼ばず空配列を返す", async () => {
+    const repos = await searchRepositories("   ");
+
+    expect(repos).toEqual([]);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("HTTP エラー時は GitHubHttpError を投げる", async () => {
+    fetchMock.mockResolvedValue(new Response("unprocessable", { status: 422 }));
+
+    const error = await searchRepositories("invalid query").catch(
+      (e: unknown) => e,
+    );
+    expect(error).toBeInstanceOf(GitHubHttpError);
+    expect((error as GitHubHttpError).status).toBe(422);
   });
 });

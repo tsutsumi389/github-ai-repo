@@ -1,4 +1,8 @@
-import type { Repository, RepositoryDetail } from "@/types/github";
+import type {
+  Repository,
+  RepositoryDetail,
+  SearchRepositoriesResponse,
+} from "@/types/github";
 
 const GITHUB_API_BASE = "https://api.github.com";
 
@@ -12,7 +16,10 @@ export class GitHubHttpError extends Error {
   }
 }
 
-async function githubFetch<T>(path: string): Promise<T> {
+async function githubFetch<T>(
+  path: string,
+  options?: { revalidate?: number | false },
+): Promise<T> {
   const token = process.env.GITHUB_TOKEN;
   const headers: Record<string, string> = {
     Accept: "application/vnd.github.v3+json",
@@ -21,10 +28,14 @@ async function githubFetch<T>(path: string): Promise<T> {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${GITHUB_API_BASE}${path}`, {
-    headers,
-    next: { revalidate: 300 },
-  });
+  const fetchOptions: RequestInit = { headers };
+  if (options?.revalidate !== false) {
+    (fetchOptions as Record<string, unknown>).next = {
+      revalidate: options?.revalidate ?? 300,
+    };
+  }
+
+  const response = await fetch(`${GITHUB_API_BASE}${path}`, fetchOptions);
 
   if (!response.ok) {
     throw new GitHubHttpError(response.status, response.statusText);
@@ -49,6 +60,19 @@ function toRepository(raw: Repository): Repository {
 export async function fetchRepositories(): Promise<readonly Repository[]> {
   const data = await githubFetch<Repository[]>("/repositories");
   return data.map(toRepository);
+}
+
+export async function searchRepositories(
+  query: string,
+): Promise<readonly Repository[]> {
+  if (!query.trim()) {
+    return [];
+  }
+  const data = await githubFetch<SearchRepositoriesResponse>(
+    `/search/repositories?q=${encodeURIComponent(query)}`,
+    { revalidate: false },
+  );
+  return data.items.map(toRepository);
 }
 
 export async function fetchRepositoryDetail(
