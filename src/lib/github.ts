@@ -1,10 +1,13 @@
 import type {
+  PaginatedRepositories,
   Repository,
   RepositoryDetail,
   SearchRepositoriesResponse,
 } from "@/types/github";
+import { REPOSITORIES_PER_PAGE } from "@/types/github";
 
 const GITHUB_API_BASE = "https://api.github.com";
+const DEFAULT_REPOSITORIES_QUERY = "topic:ai";
 
 export class GitHubHttpError extends Error {
   constructor(
@@ -57,22 +60,36 @@ function toRepository(raw: Repository): Repository {
   };
 }
 
-export async function fetchRepositories(): Promise<readonly Repository[]> {
-  const data = await githubFetch<Repository[]>("/repositories");
-  return data.map(toRepository);
+function toPaginatedRepositories(
+  data: SearchRepositoriesResponse,
+): PaginatedRepositories {
+  return {
+    items: data.items.map(toRepository),
+    totalCount: data.total_count,
+  };
+}
+
+export async function fetchRepositories(
+  page: number = 1,
+): Promise<PaginatedRepositories> {
+  const data = await githubFetch<SearchRepositoriesResponse>(
+    `/search/repositories?q=${encodeURIComponent(DEFAULT_REPOSITORIES_QUERY)}&sort=stars&order=desc&page=${page}&per_page=${REPOSITORIES_PER_PAGE}`,
+  );
+  return toPaginatedRepositories(data);
 }
 
 export async function searchRepositories(
   query: string,
-): Promise<readonly Repository[]> {
+  page: number = 1,
+): Promise<PaginatedRepositories> {
   if (!query.trim()) {
-    return [];
+    return { items: [], totalCount: 0 };
   }
   const data = await githubFetch<SearchRepositoriesResponse>(
-    `/search/repositories?q=${encodeURIComponent(query)}`,
+    `/search/repositories?q=${encodeURIComponent(query)}&page=${page}&per_page=${REPOSITORIES_PER_PAGE}`,
     { revalidate: false },
   );
-  return data.items.map(toRepository);
+  return toPaginatedRepositories(data);
 }
 
 export async function fetchRepositoryDetail(

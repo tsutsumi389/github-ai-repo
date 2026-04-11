@@ -1,19 +1,42 @@
 import { Suspense } from "react";
 import { Header } from "@/components/header";
 import { RepositoryCard } from "@/components/repository-card";
+import { RepositoryPagination } from "@/components/repository-pagination";
 import { SearchForm } from "@/components/search-form";
 import { fetchRepositories, searchRepositories } from "@/lib/github";
+import {
+  GITHUB_SEARCH_MAX_RESULTS,
+  REPOSITORIES_PER_PAGE,
+} from "@/types/github";
+
+const MAX_PAGE = Math.floor(GITHUB_SEARCH_MAX_RESULTS / REPOSITORIES_PER_PAGE);
+
+function parsePage(raw: string | undefined): number {
+  const parsed = Number.parseInt(raw ?? "", 10);
+  if (Number.isNaN(parsed) || parsed < 1) {
+    return 1;
+  }
+  return Math.min(parsed, MAX_PAGE);
+}
+
+function computeTotalPages(totalCount: number): number {
+  const cappedTotal = Math.min(totalCount, GITHUB_SEARCH_MAX_RESULTS);
+  return Math.max(1, Math.ceil(cappedTotal / REPOSITORIES_PER_PAGE));
+}
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-  const { q } = await searchParams;
+  const { q, page: pageParam } = await searchParams;
+  const page = parsePage(pageParam);
 
-  const repositories = q
-    ? await searchRepositories(q)
-    : await fetchRepositories();
+  const { items, totalCount } = q
+    ? await searchRepositories(q, page)
+    : await fetchRepositories(page);
+
+  const totalPages = computeTotalPages(totalCount);
 
   return (
     <>
@@ -24,16 +47,27 @@ export default async function Home({
             <SearchForm />
           </Suspense>
         </div>
-        {repositories.length === 0 ? (
+        {items.length === 0 ? (
           <p className="text-muted-foreground">
             リポジトリが見つかりませんでした
           </p>
         ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {repositories.map((repository) => (
-              <RepositoryCard key={repository.id} repository={repository} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {items.map((repository) => (
+                <RepositoryCard key={repository.id} repository={repository} />
+              ))}
+            </div>
+            {totalPages > 1 && (
+              <div className="mt-8">
+                <RepositoryPagination
+                  currentPage={page}
+                  totalPages={totalPages}
+                  query={q}
+                />
+              </div>
+            )}
+          </>
         )}
       </main>
     </>

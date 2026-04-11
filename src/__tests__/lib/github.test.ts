@@ -6,32 +6,33 @@ import {
   searchRepositories,
 } from "@/lib/github";
 
-const sampleResponse = [
-  {
-    id: 1,
-    name: "grit",
-    full_name: "mojombo/grit",
-    html_url: "https://github.com/mojombo/grit",
-    owner: {
-      login: "mojombo",
-      avatar_url: "https://avatars.githubusercontent.com/u/1?v=4",
+const sampleDefaultSearchResponse = {
+  total_count: 5000,
+  items: [
+    {
+      id: 1,
+      name: "tensorflow",
+      full_name: "tensorflow/tensorflow",
+      html_url: "https://github.com/tensorflow/tensorflow",
+      owner: {
+        login: "tensorflow",
+        avatar_url: "https://avatars.githubusercontent.com/u/15658638?v=4",
+      },
+      description: "An Open Source Machine Learning Framework for Everyone",
+      private: false,
     },
-    // 不要なフィールドが含まれていても問題ないことを確認
-    description:
-      "Grit gives you object oriented read/write access to Git repositories via Ruby.",
-    private: false,
-  },
-  {
-    id: 2,
-    name: "merb-core",
-    full_name: "wycats/merb-core",
-    html_url: "https://github.com/wycats/merb-core",
-    owner: {
-      login: "wycats",
-      avatar_url: "https://avatars.githubusercontent.com/u/4?v=4",
+    {
+      id: 2,
+      name: "transformers",
+      full_name: "huggingface/transformers",
+      html_url: "https://github.com/huggingface/transformers",
+      owner: {
+        login: "huggingface",
+        avatar_url: "https://avatars.githubusercontent.com/u/25720743?v=4",
+      },
     },
-  },
-];
+  ],
+};
 
 describe("fetchRepositories", () => {
   const fetchMock = vi.fn();
@@ -40,7 +41,9 @@ describe("fetchRepositories", () => {
     vi.stubGlobal("fetch", fetchMock);
     delete process.env.GITHUB_TOKEN;
     fetchMock.mockResolvedValue(
-      new Response(JSON.stringify(sampleResponse), { status: 200 }),
+      new Response(JSON.stringify(sampleDefaultSearchResponse), {
+        status: 200,
+      }),
     );
   });
 
@@ -49,11 +52,22 @@ describe("fetchRepositories", () => {
     fetchMock.mockReset();
   });
 
-  it("GitHub APIの /repositories エンドポイントを叩く", async () => {
+  it("page 未指定時は topic:ai をスター数降順で取得する (page=1)", async () => {
     await fetchRepositories();
 
     const [url] = fetchMock.mock.calls[0];
-    expect(url).toBe("https://api.github.com/repositories");
+    expect(url).toBe(
+      "https://api.github.com/search/repositories?q=topic%3Aai&sort=stars&order=desc&page=1&per_page=30",
+    );
+  });
+
+  it("page 引数に応じて page クエリを切り替える", async () => {
+    await fetchRepositories(3);
+
+    const [url] = fetchMock.mock.calls[0];
+    expect(url).toBe(
+      "https://api.github.com/search/repositories?q=topic%3Aai&sort=stars&order=desc&page=3&per_page=30",
+    );
   });
 
   it("Accept ヘッダーに GitHub v3 JSON を指定する", async () => {
@@ -82,18 +96,19 @@ describe("fetchRepositories", () => {
     expect(headers.get("Authorization")).toBe("Bearer ghp_test_token");
   });
 
-  it("レスポンスを Repository[] として返す", async () => {
-    const repos = await fetchRepositories();
+  it("レスポンスを { items, totalCount } にマップする", async () => {
+    const result = await fetchRepositories();
 
-    expect(repos).toHaveLength(2);
-    expect(repos[0]).toEqual({
+    expect(result.totalCount).toBe(5000);
+    expect(result.items).toHaveLength(2);
+    expect(result.items[0]).toEqual({
       id: 1,
-      name: "grit",
-      full_name: "mojombo/grit",
-      html_url: "https://github.com/mojombo/grit",
+      name: "tensorflow",
+      full_name: "tensorflow/tensorflow",
+      html_url: "https://github.com/tensorflow/tensorflow",
       owner: {
-        login: "mojombo",
-        avatar_url: "https://avatars.githubusercontent.com/u/1?v=4",
+        login: "tensorflow",
+        avatar_url: "https://avatars.githubusercontent.com/u/15658638?v=4",
       },
     });
   });
@@ -286,11 +301,13 @@ describe("searchRepositories", () => {
     fetchMock.mockReset();
   });
 
-  it("GitHub Search API の /search/repositories エンドポイントを叩く", async () => {
+  it("GitHub Search API の /search/repositories エンドポイントを叩く (page=1)", async () => {
     await searchRepositories("react");
 
     const [url] = fetchMock.mock.calls[0];
-    expect(url).toBe("https://api.github.com/search/repositories?q=react");
+    expect(url).toBe(
+      "https://api.github.com/search/repositories?q=react&page=1&per_page=30",
+    );
   });
 
   it("クエリ文字列を URL エンコードする", async () => {
@@ -298,15 +315,25 @@ describe("searchRepositories", () => {
 
     const [url] = fetchMock.mock.calls[0];
     expect(url).toBe(
-      "https://api.github.com/search/repositories?q=hello%20world",
+      "https://api.github.com/search/repositories?q=hello%20world&page=1&per_page=30",
     );
   });
 
-  it("items を Repository[] にマッピングする", async () => {
-    const repos = await searchRepositories("react");
+  it("page 引数に応じて page クエリを切り替える", async () => {
+    await searchRepositories("react", 4);
 
-    expect(repos).toHaveLength(2);
-    expect(repos[0]).toEqual({
+    const [url] = fetchMock.mock.calls[0];
+    expect(url).toBe(
+      "https://api.github.com/search/repositories?q=react&page=4&per_page=30",
+    );
+  });
+
+  it("items と totalCount を返す", async () => {
+    const result = await searchRepositories("react");
+
+    expect(result.totalCount).toBe(2);
+    expect(result.items).toHaveLength(2);
+    expect(result.items[0]).toEqual({
       id: 10,
       name: "react",
       full_name: "facebook/react",
@@ -316,7 +343,7 @@ describe("searchRepositories", () => {
         avatar_url: "https://avatars.githubusercontent.com/u/69631?v=4",
       },
     });
-    expect(repos[1]).toEqual({
+    expect(result.items[1]).toEqual({
       id: 20,
       name: "react-native",
       full_name: "facebook/react-native",
@@ -328,10 +355,10 @@ describe("searchRepositories", () => {
     });
   });
 
-  it("空文字クエリは API を呼ばず空配列を返す", async () => {
-    const repos = await searchRepositories("   ");
+  it("空文字クエリは API を呼ばず {items: [], totalCount: 0} を返す", async () => {
+    const result = await searchRepositories("   ");
 
-    expect(repos).toEqual([]);
+    expect(result).toEqual({ items: [], totalCount: 0 });
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
