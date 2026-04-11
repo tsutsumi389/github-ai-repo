@@ -204,41 +204,54 @@ WCAG 2.1 AA 準拠を必須とする。以下のルールを守ること。
 
 ## 実装ガイド
 
-### globals.css への定義方法
+### 本プロジェクトでの運用方針
 
-Tailwind CSS v4 の `@theme` ディレクティブを使ってデザイントークンを定義する。
-ライト/ダークの切り替えは CSS 変数と `prefers-color-scheme` で行う。
+本プロジェクトは shadcn/ui（ADR-008）を採用しており、`globals.css` には shadcn のトークン名
+（`--background`, `--foreground`, `--primary`, `--muted-foreground`, `--border` 等）のみが定義されている。
+Primer のカラーはこれらの shadcn トークンに**値として差し替え**てマップされている（ADR-010）。
+
+したがって、コンポーネント実装時は以下のルールに従うこと。
+
+- **Primer トークンを直接参照しない**（`var(--color-fg-default)` のような書き方はしない）
+- **shadcn トークン経由の Tailwind ユーティリティを使う**（`bg-background`, `text-foreground`, `text-muted-foreground`, `border-border`, `bg-accent text-accent-foreground` 等）
+- shadcn トークン名と Primer セマンティクスの対応関係は `docs/adr/ADR-010-primer-token-mapping.md` のマッピング表を参照
+- ダークモードは `prefers-color-scheme` メディアクエリで OS 設定に自動追随する（`.dark` クラスは使わない）
+
+### globals.css の構造（参考）
 
 ```css
 @import "tailwindcss";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (@media (prefers-color-scheme: dark));
 
 :root {
-  --color-fg-default: #1f2328;
-  --color-bg-default: #ffffff;
-  /* ... その他のトークン */
+  --background: #ffffff;
+  --foreground: #1f2328;
+  --primary: #0969da;
+  /* ... Primer ライト値 */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-fg-default: #f0f6fc;
-    --color-bg-default: #0d1117;
-    /* ... ダーク用の値 */
+    --background: #0d1117;
+    --foreground: #f0f6fc;
+    --primary: #1f6feb;
+    /* ... Primer ダーク値 */
   }
-}
-
-@theme {
-  --color-fg-default: var(--color-fg-default);
-  /* Tailwind テーマとして登録 */
 }
 ```
 
 ### コンポーネントでの使い方
 
 ```tsx
-// Tailwind ユーティリティで使う例
-<button className="bg-[var(--color-bg-accent)] text-[var(--color-fg-default)] rounded-md px-4 py-2 shadow-sm">
+// shadcn トークン経由の Tailwind ユーティリティで書く
+<button className="bg-primary text-primary-foreground rounded-md px-4 py-2 shadow-sm">
   ボタン
 </button>
+
+<p className="text-muted-foreground">補助テキスト</p>
+<div className="bg-background text-foreground border border-border rounded-md">...</div>
 ```
 
 ### 詳細リファレンス
