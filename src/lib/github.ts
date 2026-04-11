@@ -82,11 +82,13 @@ export async function searchRepositories(
   query: string,
   page: number = 1,
 ): Promise<PaginatedRepositories> {
-  if (!query.trim()) {
+  const trimmed = query.trim();
+  if (!trimmed) {
     return { items: [], totalCount: 0 };
   }
+  const combinedQuery = `${trimmed} ${DEFAULT_REPOSITORIES_QUERY}`;
   const data = await githubFetch<SearchRepositoriesResponse>(
-    `/search/repositories?q=${encodeURIComponent(query)}&page=${page}&per_page=${REPOSITORIES_PER_PAGE}`,
+    `/search/repositories?q=${encodeURIComponent(combinedQuery)}&page=${page}&per_page=${REPOSITORIES_PER_PAGE}`,
     { revalidate: false },
   );
   return toPaginatedRepositories(data);

@@ -306,7 +306,7 @@ describe("searchRepositories", () => {
 
     const [url] = fetchMock.mock.calls[0];
     expect(url).toBe(
-      "https://api.github.com/search/repositories?q=react&page=1&per_page=30",
+      "https://api.github.com/search/repositories?q=react%20topic%3Aai&page=1&per_page=30",
     );
   });
 
@@ -315,7 +315,7 @@ describe("searchRepositories", () => {
 
     const [url] = fetchMock.mock.calls[0];
     expect(url).toBe(
-      "https://api.github.com/search/repositories?q=hello%20world&page=1&per_page=30",
+      "https://api.github.com/search/repositories?q=hello%20world%20topic%3Aai&page=1&per_page=30",
     );
   });
 
@@ -324,7 +324,7 @@ describe("searchRepositories", () => {
 
     const [url] = fetchMock.mock.calls[0];
     expect(url).toBe(
-      "https://api.github.com/search/repositories?q=react&page=4&per_page=30",
+      "https://api.github.com/search/repositories?q=react%20topic%3Aai&page=4&per_page=30",
     );
   });
 
