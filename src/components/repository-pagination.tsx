@@ -69,6 +69,7 @@ export function RepositoryPagination({
             aria-disabled={isFirst || undefined}
             tabIndex={isFirst ? -1 : undefined}
             className={isFirst ? disabledClass : undefined}
+            text="前へ"
           />
         </PaginationItem>
         {items.map((item, idx) => (
@@ -93,6 +94,7 @@ export function RepositoryPagination({
             aria-disabled={isLast || undefined}
             tabIndex={isLast ? -1 : undefined}
             className={isLast ? disabledClass : undefined}
+            text="次へ"
           />
         </PaginationItem>
       </PaginationContent>
