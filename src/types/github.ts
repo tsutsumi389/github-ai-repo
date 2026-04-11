@@ -14,6 +14,14 @@ export type SearchRepositoriesResponse = {
   readonly items: readonly Repository[];
 };
 
+export type PaginatedRepositories = {
+  readonly items: readonly Repository[];
+  readonly totalCount: number;
+};
+
+export const REPOSITORIES_PER_PAGE = 30;
+export const GITHUB_SEARCH_MAX_RESULTS = 1000;
+
 export type RepositoryDetail = Repository & {
   readonly language: string | null;
   readonly stargazers_count: number;
