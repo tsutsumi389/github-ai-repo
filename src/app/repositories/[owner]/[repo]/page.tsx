@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/header";
+import { LanguageIndicator } from "@/components/language-indicator";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { fetchRepositoryDetail, GitHubHttpError } from "@/lib/github";
 import type { RepositoryDetail } from "@/types/github";
@@ -102,7 +103,12 @@ export default async function RepositoryDetailPage({ params }: PageProps) {
                   </a>
                 </h2>
                 <p className="truncate text-sm text-muted-foreground">
-                  言語: {detail.language ?? "—"}
+                  言語:{" "}
+                  {detail.language ? (
+                    <LanguageIndicator language={detail.language} />
+                  ) : (
+                    "—"
+                  )}
                 </p>
               </div>
             </div>

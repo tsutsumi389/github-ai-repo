@@ -1,6 +1,7 @@
 import { GitFork, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { LanguageIndicator } from "@/components/language-indicator";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import type { Repository } from "@/types/github";
@@ -50,13 +51,7 @@ export function RepositoryCard({ repository }: RepositoryCardProps) {
 
           <div className="text-muted-foreground flex items-center gap-4 text-xs">
             {repository.language && (
-              <span className="flex items-center gap-1">
-                <span
-                  className="bg-foreground/70 inline-block size-3 rounded-full"
-                  aria-hidden="true"
-                />
-                {repository.language}
-              </span>
+              <LanguageIndicator language={repository.language} />
             )}
             <span className="flex items-center gap-1">
               <Star className="size-3" aria-hidden="true" />
