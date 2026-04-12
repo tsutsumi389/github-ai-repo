@@ -45,7 +45,20 @@ GITHUB_TOKEN=ghp_xxxxxxxxxxxx
 
 ## 設計判断
 
-すべての主要な設計判断は [ADR（Architecture Decision Records）](./docs/adr/) として記録している。各技術の選定理由・比較検討の詳細はADRを参照されたい。
+すべての主要な設計判断は [ADR（Architecture Decision Records）](./docs/adr/) として記録している。各技術の選定理由・比較検討の詳細はADRを参照ください。
+
+| ADR | 概要 |
+|-----|------|
+| [ADR-001](./docs/adr/ADR-001-adopt-adr-process.md) | ADRプロセスの採用 — AIエージェントが設計意図を参照できるよう構造化 |
+| [ADR-002](./docs/adr/ADR-002-nextjs-app-router.md) | Next.js 16 (App Router) の採用 |
+| [ADR-003](./docs/adr/ADR-003-biome-linter-formatter.md) | Biome をリンター/フォーマッターとして採用 — ESLint + Prettier を一体化 |
+| [ADR-004](./docs/adr/ADR-004-tailwind-css.md) | Tailwind CSS v4 の採用 |
+| [ADR-005](./docs/adr/ADR-005-bun.md) | Bun をパッケージマネージャー/ランタイムとして採用 |
+| [ADR-006](./docs/adr/ADR-006-typescript-strict-mode.md) | TypeScript strict mode の採用 — AIによる暗黙の `any` を防止 |
+| [ADR-007](./docs/adr/ADR-007-vitest.md) | テストフレームワークに Vitest を採用 |
+| [ADR-008](./docs/adr/ADR-008-shadcn-ui.md) | shadcn/ui の採用 — Primer風トークン調整が容易 |
+| [ADR-009](./docs/adr/ADR-009-pagination-strategy.md) | ページネーション戦略 — Search API に統一しページ番号方式を実現 |
+| [ADR-010](./docs/adr/ADR-010-primer-token-mapping.md) | Primer カラーマッピングと prefers-color-scheme 方式への移行 |
 
 ## 工夫した点・こだわったポイント
 
@@ -99,7 +112,7 @@ Claude Code の Plan モードで作成したプランファイルを [`docs/pla
 
 | # | プランファイル | 概要 |
 |---|---------------|------|
-| 1 | [sharded-bubbling-hennessy.md](./docs/plans/sharded-bubbling-hennessy.md) | リポジトリ一覧ページの初期実装（API連携・カード表示） |
+| 1 | [sharded-bubbling-hennessy.md](./docs/plans/sharded-bubbling-hennessy.md) | リポジトリ一覧ページの初期実装（API連携・カード表示）※shadcn/ui入れていなかったことに気づき2まで実装して中断 |
 | 2 | [harmonic-popping-sunbeam.md](./docs/plans/harmonic-popping-sunbeam.md) | shadcn/ui 対応への改訂（UIコンポーネント刷新） |
 | 3 | [lexical-bubbling-sun.md](./docs/plans/lexical-bubbling-sun.md) | リポジトリ詳細ページの追加（動的ルーティング） |
 | 4 | [joyful-twirling-hickey.md](./docs/plans/joyful-twirling-hickey.md) | リポジトリ検索機能の追加（GitHub Search API連携） |
