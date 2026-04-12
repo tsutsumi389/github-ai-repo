@@ -56,6 +56,7 @@ function toRepository(raw: Repository): Repository {
     owner: {
       login: raw.owner.login,
       avatar_url: raw.owner.avatar_url,
+      html_url: raw.owner.html_url,
     },
   };
 }

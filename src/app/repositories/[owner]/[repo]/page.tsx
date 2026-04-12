@@ -1,4 +1,4 @@
-import { CircleDot, Code2, Eye, GitFork, Star } from "lucide-react";
+import { CircleDot, Eye, GitFork, Star } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -40,12 +40,6 @@ export default async function RepositoryDetailPage({ params }: PageProps) {
 
   const stats = [
     {
-      key: "language",
-      label: "Language",
-      value: detail.language ?? "—",
-      icon: Code2,
-    },
-    {
       key: "stars",
       label: "Stars",
       value: detail.stargazers_count,
@@ -81,11 +75,29 @@ export default async function RepositoryDetailPage({ params }: PageProps) {
                 className="rounded-full"
               />
               <div className="min-w-0">
-                <h2 className="truncate text-xl font-semibold">
-                  {detail.full_name}
+                <h2 className="text-xl font-semibold break-words">
+                  <a
+                    href={detail.owner.html_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${detail.owner.login} の GitHub プロフィール (新しいタブで開く)`}
+                    className="hover:underline"
+                  >
+                    {detail.owner.login}
+                  </a>
+                  <span className="text-muted-foreground"> / </span>
+                  <a
+                    href={detail.html_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${detail.full_name} の GitHub リポジトリ (新しいタブで開く)`}
+                    className="hover:underline"
+                  >
+                    {detail.name}
+                  </a>
                 </h2>
                 <p className="truncate text-sm text-muted-foreground">
-                  {detail.owner.login}
+                  Language: {detail.language ?? "—"}
                 </p>
               </div>
             </div>
