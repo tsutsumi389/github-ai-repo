@@ -1,5 +1,14 @@
 @AGENTS.md
 
+## パッケージマネージャー
+
+このプロジェクトでは **bun** を使用する。`npx`、`npm run`、`yarn` は使わないこと。
+
+- スクリプト実行: `bun run <script>`
+- パッケージ実行: `bunx <package>`
+- 依存追加: `bun add <package>`
+- テスト実行: `bun run test` または `bunx vitest`
+
 ## ADR (Architecture Decision Records)
 
 設計判断の記録は `docs/adr/` で管理する。
