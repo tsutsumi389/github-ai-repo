@@ -7,7 +7,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path' | { read -r f; if echo \"$f\" | grep -qE '\\.(ts|tsx|js|jsx)$'; then bun run biome check \"$f\"; fi; }",
+            "command": "jq -r '.tool_input.file_path' | { read -r f; if echo \"$f\" | grep -qE '\\.(ts|tsx|js|jsx)$'; then bun run biome check \"$f\" || exit 2; fi; }",
             "timeout": 30,
             "statusMessage": "Running biome check..."
           }
