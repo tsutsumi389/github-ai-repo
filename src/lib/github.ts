@@ -1,5 +1,6 @@
 import type {
   PaginatedRepositories,
+  Release,
   Repository,
   RepositoryDetail,
   SearchRepositoriesResponse,
@@ -98,6 +99,33 @@ export async function searchRepositories(
     { revalidate: false },
   );
   return toPaginatedRepositories(data);
+}
+
+function toRelease(raw: Release & Record<string, unknown>): Release {
+  return {
+    tag_name: raw.tag_name,
+    name: raw.name,
+    published_at: raw.published_at,
+    html_url: raw.html_url,
+    prerelease: raw.prerelease,
+  };
+}
+
+export async function fetchLatestRelease(
+  owner: string,
+  repo: string,
+): Promise<Release | null> {
+  try {
+    const data = await githubFetch<Release & Record<string, unknown>>(
+      `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/releases/latest`,
+    );
+    return toRelease(data);
+  } catch (error) {
+    if (error instanceof GitHubHttpError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function fetchRepositoryDetail(

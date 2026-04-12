@@ -1,11 +1,15 @@
-import { CircleDot, Eye, GitFork, Star } from "lucide-react";
+import { CircleDot, Eye, GitFork, Star, Tag } from "lucide-react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/header";
 import { LanguageIndicator } from "@/components/language-indicator";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { fetchRepositoryDetail, GitHubHttpError } from "@/lib/github";
+import {
+  fetchLatestRelease,
+  fetchRepositoryDetail,
+  GitHubHttpError,
+} from "@/lib/github";
 import type { RepositoryDetail } from "@/types/github";
 
 type PageProps = {
@@ -37,7 +41,10 @@ export async function generateMetadata({
 
 export default async function RepositoryDetailPage({ params }: PageProps) {
   const { owner, repo } = await params;
-  const detail = await loadDetail(owner, repo);
+  const [detail, release] = await Promise.all([
+    loadDetail(owner, repo),
+    fetchLatestRelease(owner, repo).catch(() => null),
+  ]);
 
   const stats = [
     {
@@ -103,7 +110,6 @@ export default async function RepositoryDetailPage({ params }: PageProps) {
                   </a>
                 </h2>
                 <p className="truncate text-sm text-muted-foreground">
-                  言語:{" "}
                   {detail.language ? (
                     <LanguageIndicator language={detail.language} />
                   ) : (
@@ -127,12 +133,37 @@ export default async function RepositoryDetailPage({ params }: PageProps) {
                       <dt className="text-xs text-muted-foreground">
                         {stat.label}
                       </dt>
-                      <dd className="truncate font-medium">{stat.value}</dd>
+                      <dd className="truncate font-medium">
+                        {stat.value.toLocaleString("en-US")}
+                      </dd>
                     </div>
                   </div>
                 );
               })}
             </dl>
+            {release && (
+              <div className="mt-6 flex items-start gap-3 rounded-lg border border-border/50 p-4">
+                <Tag className="mt-0.5 size-5 text-muted-foreground" />
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold">最新リリース</h3>
+                  <p className="mt-1 text-sm font-medium">
+                    {release.name ?? release.tag_name}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {release.tag_name} ・{" "}
+                    {new Date(release.published_at).toLocaleDateString("ja-JP")}
+                  </p>
+                  <a
+                    href={release.html_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-1 inline-block text-xs text-blue-600 hover:underline dark:text-blue-400"
+                  >
+                    GitHubで見る
+                  </a>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </main>

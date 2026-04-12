@@ -1,10 +1,27 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  fetchLatestRelease,
   fetchRepositories,
   fetchRepositoryDetail,
   GitHubHttpError,
   searchRepositories,
 } from "@/lib/github";
+
+function setupFetchMock(defaultResponse: unknown) {
+  const fetchMock = vi.fn();
+  beforeEach(() => {
+    vi.stubGlobal("fetch", fetchMock);
+    delete process.env.GITHUB_TOKEN;
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(defaultResponse), { status: 200 }),
+    );
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    fetchMock.mockReset();
+  });
+  return fetchMock;
+}
 
 const sampleDefaultSearchResponse = {
   total_count: 5000,
@@ -46,22 +63,7 @@ const sampleDefaultSearchResponse = {
 };
 
 describe("fetchRepositories", () => {
-  const fetchMock = vi.fn();
-
-  beforeEach(() => {
-    vi.stubGlobal("fetch", fetchMock);
-    delete process.env.GITHUB_TOKEN;
-    fetchMock.mockResolvedValue(
-      new Response(JSON.stringify(sampleDefaultSearchResponse), {
-        status: 200,
-      }),
-    );
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    fetchMock.mockReset();
-  });
+  const fetchMock = setupFetchMock(sampleDefaultSearchResponse);
 
   it("page 未指定時は topic:ai をスター数降順で取得する (page=1)", async () => {
     await fetchRepositories();
@@ -183,20 +185,7 @@ const sampleDetailResponse = {
 };
 
 describe("fetchRepositoryDetail", () => {
-  const fetchMock = vi.fn();
-
-  beforeEach(() => {
-    vi.stubGlobal("fetch", fetchMock);
-    delete process.env.GITHUB_TOKEN;
-    fetchMock.mockResolvedValue(
-      new Response(JSON.stringify(sampleDetailResponse), { status: 200 }),
-    );
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    fetchMock.mockReset();
-  });
+  const fetchMock = setupFetchMock(sampleDetailResponse);
 
   it("GitHub APIの /repos/{owner}/{repo} エンドポイントを叩く", async () => {
     await fetchRepositoryDetail("octocat", "Hello-World");
@@ -335,20 +324,7 @@ const sampleSearchResponse = {
 };
 
 describe("searchRepositories", () => {
-  const fetchMock = vi.fn();
-
-  beforeEach(() => {
-    vi.stubGlobal("fetch", fetchMock);
-    delete process.env.GITHUB_TOKEN;
-    fetchMock.mockResolvedValue(
-      new Response(JSON.stringify(sampleSearchResponse), { status: 200 }),
-    );
-  });
-
-  afterEach(() => {
-    vi.unstubAllGlobals();
-    fetchMock.mockReset();
-  });
+  const fetchMock = setupFetchMock(sampleSearchResponse);
 
   it("GitHub Search API の /search/repositories エンドポイントを叩く (page=1)", async () => {
     await searchRepositories("react");
@@ -431,5 +407,74 @@ describe("searchRepositories", () => {
     );
     expect(error).toBeInstanceOf(GitHubHttpError);
     expect((error as GitHubHttpError).status).toBe(422);
+  });
+});
+
+const sampleReleaseResponse = {
+  tag_name: "v1.0.0",
+  name: "First Release",
+  published_at: "2025-01-15T10:00:00Z",
+  html_url: "https://github.com/octocat/Hello-World/releases/tag/v1.0.0",
+  prerelease: false,
+  draft: false,
+  body: "Release notes",
+};
+
+describe("fetchLatestRelease", () => {
+  const fetchMock = setupFetchMock(sampleReleaseResponse);
+
+  it("GitHub APIの /repos/{owner}/{repo}/releases/latest エンドポイントを叩く", async () => {
+    await fetchLatestRelease("octocat", "Hello-World");
+
+    const [url] = fetchMock.mock.calls[0];
+    expect(url).toBe(
+      "https://api.github.com/repos/octocat/Hello-World/releases/latest",
+    );
+  });
+
+  it("owner/repo を URL エンコードする", async () => {
+    await fetchLatestRelease("foo bar", "baz/qux");
+
+    const [url] = fetchMock.mock.calls[0];
+    expect(url).toBe(
+      "https://api.github.com/repos/foo%20bar/baz%2Fqux/releases/latest",
+    );
+  });
+
+  it("レスポンスを Release 型にマップする", async () => {
+    const release = await fetchLatestRelease("octocat", "Hello-World");
+
+    expect(release).toEqual({
+      tag_name: "v1.0.0",
+      name: "First Release",
+      published_at: "2025-01-15T10:00:00Z",
+      html_url: "https://github.com/octocat/Hello-World/releases/tag/v1.0.0",
+      prerelease: false,
+    });
+  });
+
+  it("404 のときは null を返す（リリースなしのリポジトリ）", async () => {
+    fetchMock.mockResolvedValue(
+      new Response("not found", { status: 404, statusText: "Not Found" }),
+    );
+
+    const result = await fetchLatestRelease("octocat", "Hello-World");
+
+    expect(result).toBeNull();
+  });
+
+  it("5xx のときは GitHubHttpError を投げる", async () => {
+    fetchMock.mockResolvedValue(
+      new Response("boom", {
+        status: 500,
+        statusText: "Internal Server Error",
+      }),
+    );
+
+    const error = await fetchLatestRelease("octocat", "Hello-World").catch(
+      (e: unknown) => e,
+    );
+    expect(error).toBeInstanceOf(GitHubHttpError);
+    expect((error as GitHubHttpError).status).toBe(500);
   });
 });
