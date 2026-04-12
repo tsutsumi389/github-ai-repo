@@ -6,6 +6,7 @@ export type Repository = {
   readonly owner: {
     readonly login: string;
     readonly avatar_url: string;
+    readonly html_url: string;
   };
 };
 

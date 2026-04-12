@@ -17,6 +17,7 @@ const sampleDefaultSearchResponse = {
       owner: {
         login: "tensorflow",
         avatar_url: "https://avatars.githubusercontent.com/u/15658638?v=4",
+        html_url: "https://github.com/tensorflow",
       },
       description: "An Open Source Machine Learning Framework for Everyone",
       private: false,
@@ -29,6 +30,7 @@ const sampleDefaultSearchResponse = {
       owner: {
         login: "huggingface",
         avatar_url: "https://avatars.githubusercontent.com/u/25720743?v=4",
+        html_url: "https://github.com/huggingface",
       },
     },
   ],
@@ -109,6 +111,7 @@ describe("fetchRepositories", () => {
       owner: {
         login: "tensorflow",
         avatar_url: "https://avatars.githubusercontent.com/u/15658638?v=4",
+        html_url: "https://github.com/tensorflow",
       },
     });
   });
@@ -136,6 +139,7 @@ const sampleDetailResponse = {
   owner: {
     login: "octocat",
     avatar_url: "https://avatars.githubusercontent.com/u/583231?v=4",
+    html_url: "https://github.com/octocat",
   },
   language: "C",
   stargazers_count: 80,
@@ -214,6 +218,7 @@ describe("fetchRepositoryDetail", () => {
       owner: {
         login: "octocat",
         avatar_url: "https://avatars.githubusercontent.com/u/583231?v=4",
+        html_url: "https://github.com/octocat",
       },
       language: "C",
       stargazers_count: 80,
