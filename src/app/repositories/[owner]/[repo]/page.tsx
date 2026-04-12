@@ -41,20 +41,25 @@ export default async function RepositoryDetailPage({ params }: PageProps) {
   const stats = [
     {
       key: "stars",
-      label: "Stars",
+      label: "Star数",
       value: detail.stargazers_count,
       icon: Star,
     },
     {
       key: "watchers",
-      label: "Watchers",
+      label: "Watcher数",
       value: detail.watchers_count,
       icon: Eye,
     },
-    { key: "forks", label: "Forks", value: detail.forks_count, icon: GitFork },
+    {
+      key: "forks",
+      label: "Fork数",
+      value: detail.forks_count,
+      icon: GitFork,
+    },
     {
       key: "issues",
-      label: "Open Issues",
+      label: "Issue数",
       value: detail.open_issues_count,
       icon: CircleDot,
     },
@@ -97,7 +102,7 @@ export default async function RepositoryDetailPage({ params }: PageProps) {
                   </a>
                 </h2>
                 <p className="truncate text-sm text-muted-foreground">
-                  Language: {detail.language ?? "—"}
+                  言語: {detail.language ?? "—"}
                 </p>
               </div>
             </div>
