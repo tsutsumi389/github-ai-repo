@@ -32,3 +32,11 @@ export type RepositoryDetail = Repository & {
   readonly watchers_count: number;
   readonly open_issues_count: number;
 };
+
+export type Release = {
+  readonly tag_name: string;
+  readonly name: string | null;
+  readonly published_at: string;
+  readonly html_url: string;
+  readonly prerelease: boolean;
+};
