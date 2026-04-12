@@ -8,6 +8,11 @@ export type Repository = {
     readonly avatar_url: string;
     readonly html_url: string;
   };
+  readonly description: string | null;
+  readonly language: string | null;
+  readonly stargazers_count: number;
+  readonly forks_count: number;
+  readonly topics: readonly string[];
 };
 
 export type SearchRepositoriesResponse = {
@@ -24,9 +29,6 @@ export const REPOSITORIES_PER_PAGE = 30;
 export const GITHUB_SEARCH_MAX_RESULTS = 1000;
 
 export type RepositoryDetail = Repository & {
-  readonly language: string | null;
-  readonly stargazers_count: number;
   readonly watchers_count: number;
-  readonly forks_count: number;
   readonly open_issues_count: number;
 };

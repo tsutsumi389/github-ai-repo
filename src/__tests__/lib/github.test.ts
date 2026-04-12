@@ -20,6 +20,10 @@ const sampleDefaultSearchResponse = {
         html_url: "https://github.com/tensorflow",
       },
       description: "An Open Source Machine Learning Framework for Everyone",
+      language: "Python",
+      stargazers_count: 180000,
+      forks_count: 74000,
+      topics: ["machine-learning", "deep-learning", "tensorflow"],
       private: false,
     },
     {
@@ -32,6 +36,11 @@ const sampleDefaultSearchResponse = {
         avatar_url: "https://avatars.githubusercontent.com/u/25720743?v=4",
         html_url: "https://github.com/huggingface",
       },
+      description: null,
+      language: null,
+      stargazers_count: 120000,
+      forks_count: 24000,
+      topics: ["nlp", "transformers"],
     },
   ],
 };
@@ -113,6 +122,27 @@ describe("fetchRepositories", () => {
         avatar_url: "https://avatars.githubusercontent.com/u/15658638?v=4",
         html_url: "https://github.com/tensorflow",
       },
+      description: "An Open Source Machine Learning Framework for Everyone",
+      language: "Python",
+      stargazers_count: 180000,
+      forks_count: 74000,
+      topics: ["machine-learning", "deep-learning", "tensorflow"],
+    });
+    expect(result.items[1]).toEqual({
+      id: 2,
+      name: "transformers",
+      full_name: "huggingface/transformers",
+      html_url: "https://github.com/huggingface/transformers",
+      owner: {
+        login: "huggingface",
+        avatar_url: "https://avatars.githubusercontent.com/u/25720743?v=4",
+        html_url: "https://github.com/huggingface",
+      },
+      description: null,
+      language: null,
+      stargazers_count: 120000,
+      forks_count: 24000,
+      topics: ["nlp", "transformers"],
     });
   });
 
@@ -147,6 +177,7 @@ const sampleDetailResponse = {
   forks_count: 9,
   open_issues_count: 0,
   description: "This your first repo!",
+  topics: [],
   private: false,
   size: 108,
 };
@@ -220,10 +251,12 @@ describe("fetchRepositoryDetail", () => {
         avatar_url: "https://avatars.githubusercontent.com/u/583231?v=4",
         html_url: "https://github.com/octocat",
       },
+      description: "This your first repo!",
       language: "C",
       stargazers_count: 80,
-      watchers_count: 9,
       forks_count: 9,
+      topics: [],
+      watchers_count: 9,
       open_issues_count: 0,
     });
   });
@@ -273,8 +306,13 @@ const sampleSearchResponse = {
       owner: {
         login: "facebook",
         avatar_url: "https://avatars.githubusercontent.com/u/69631?v=4",
+        html_url: "https://github.com/facebook",
       },
       description: "A declarative, efficient, and flexible JavaScript library",
+      language: "JavaScript",
+      stargazers_count: 220000,
+      forks_count: 45000,
+      topics: ["react", "javascript", "ui"],
       private: false,
     },
     {
@@ -285,7 +323,13 @@ const sampleSearchResponse = {
       owner: {
         login: "facebook",
         avatar_url: "https://avatars.githubusercontent.com/u/69631?v=4",
+        html_url: "https://github.com/facebook",
       },
+      description: "A framework for building native applications using React",
+      language: "Java",
+      stargazers_count: 115000,
+      forks_count: 24000,
+      topics: ["react-native", "mobile"],
     },
   ],
 };
@@ -346,7 +390,13 @@ describe("searchRepositories", () => {
       owner: {
         login: "facebook",
         avatar_url: "https://avatars.githubusercontent.com/u/69631?v=4",
+        html_url: "https://github.com/facebook",
       },
+      description: "A declarative, efficient, and flexible JavaScript library",
+      language: "JavaScript",
+      stargazers_count: 220000,
+      forks_count: 45000,
+      topics: ["react", "javascript", "ui"],
     });
     expect(result.items[1]).toEqual({
       id: 20,
@@ -356,7 +406,13 @@ describe("searchRepositories", () => {
       owner: {
         login: "facebook",
         avatar_url: "https://avatars.githubusercontent.com/u/69631?v=4",
+        html_url: "https://github.com/facebook",
       },
+      description: "A framework for building native applications using React",
+      language: "Java",
+      stargazers_count: 115000,
+      forks_count: 24000,
+      topics: ["react-native", "mobile"],
     });
   });
 

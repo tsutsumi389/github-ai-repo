@@ -58,6 +58,11 @@ function toRepository(raw: Repository): Repository {
       avatar_url: raw.owner.avatar_url,
       html_url: raw.owner.html_url,
     },
+    description: raw.description,
+    language: raw.language,
+    stargazers_count: raw.stargazers_count,
+    forks_count: raw.forks_count,
+    topics: raw.topics,
   };
 }
 
@@ -104,10 +109,7 @@ export async function fetchRepositoryDetail(
   );
   return {
     ...toRepository(data),
-    language: data.language,
-    stargazers_count: data.stargazers_count,
     watchers_count: data.watchers_count,
-    forks_count: data.forks_count,
     open_issues_count: data.open_issues_count,
   };
 }
