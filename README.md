@@ -1,4 +1,4 @@
-# GitHub AI Repository Explorer
+# GitHub AI Repo
 
 GitHub上のAI関連リポジトリを探索・検索できるWebアプリケーション。
 AI関連トピックのリポジトリをスター数順に一覧表示し、キーワード検索やリポジトリ詳細の閲覧が可能。
